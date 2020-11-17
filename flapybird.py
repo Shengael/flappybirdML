@@ -3,46 +3,57 @@ import random
 
 UP, RELEASE = 'U', 'R'
 ACTIONS = [UP, RELEASE]
-
+ABOVE, IN, UNDER, NO_PIPE = 'A', 'I', 'N', 'P'
+POSITIONS = [ABOVE, IN, UNDER, NO_PIPE]
 MAZE = """
-###########
-           
- .         
-           
-           
-           
-           
-           
-           
-           
-           
-___________
+###############################
+                               
+ .                             
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+_______________________________
 """
-REWARD_LOOSE = -9000
+REWARD_LOOSE = -10000
 REWARD_IMPOSSIBLE = -60
-REWARD_STUCK = -6
+REWARD_STUCK = -1000
+REWARD_PENALTY = -200
 REWARD_DEFAULT = -1
 # TODO: doit-il y avoir une fin ?
-REWARD_CHECKPOINT = 15
+REWARD_CHECKPOINT = 1500
 REWARD_GOAL = 60
 DEFAULT_LEARNING_RATE = 1
 DEFAULT_DISCOUNT_FACTOR = 0.5
 SPRITE_SIZE = 64
-PIPE_FREQUENCY = 50
+PIPE_FREQUENCY = 15
 MIN_PIPE_SIZE = 1
-GAP_SIZE = 2
+GAP_SIZE = 3
 
 
 class Environment:
 
     def __init__(self, text):
         self.goals = []
+        self.width = 0
+        self.height = 0
+        self.frequency = PIPE_FREQUENCY
+        self.loose = False
+        self.checked = False
+        self.states = {}
+        self.starting_point = None
         self.initial = text
         self.reset()
 
     def reset(self):
         self.states = {}
+        self.goals = []
         self.loose = False
+        self.checked = False
         self.frequency = PIPE_FREQUENCY
         lines = self.initial.strip().split('\n')
         self.height = len(lines)
@@ -61,6 +72,9 @@ class Environment:
             for col in range(self.width - 1):
                 self.states[(row, col)] = self.states[(row, col + 1)]
 
+        for goal in self.goals:
+            goal["x"] -= 1
+
         if self.frequency != 0:
             for i in range(1, self.height - 1):
                 self.states[(i, self.width - 1)] = ' '
@@ -68,40 +82,82 @@ class Environment:
             self.frequency = PIPE_FREQUENCY
             top_pipe = random.randint(MIN_PIPE_SIZE + 1, self.height - 1 - MIN_PIPE_SIZE - GAP_SIZE)
             bottom_pipe = top_pipe + GAP_SIZE
-            #self.goals.push({top: (x, y), bottom: (x, y)})
+            self.goals.append({"top": top_pipe, "bottom": bottom_pipe, "x": self.width - 1})
 
             self.states[(top_pipe, self.width - 1)] = '&'
             self.states[(bottom_pipe, self.width - 1)] = '&'
+
             for i in range(self.height - 1):
                 if 1 <= i < top_pipe:
                     self.states[(i, self.width - 1)] = '@'
                 elif bottom_pipe < i <= self.height:
                     self.states[(i, self.width - 1)] = '@'
+                elif top_pipe < i < bottom_pipe:
+                    self.states[(i, self.width - 1)] = '+'
+
+    def distance(self, state):
+        if len(self.goals) == 0:
+            return -1
+        if state[0] <= self.goals[0]['top']:
+            return self.goals[0]['top'] - state[0] + 1
+        if state[0] >= self.goals[0]['bottom']:
+            return state[0] - self.goals[0]['bottom'] + 1
+        return 0
+
+    def in_checkpoint(self, state):
+        if len(self.goals) == 0:
+            return False
+        if self.goals[0]["x"] == state[1] and self.goals[0]["top"] < state[0] < self.goals[0]["bottom"]:
+            return True
+        return False
+
+    def position(self, state):
+        if len(self.goals) == 0:
+            return NO_PIPE
+        if state[0] <= self.goals[0]['top']:
+            return ABOVE
+        if state[0] >= self.goals[0]['bottom']:
+            return UNDER
+        return IN
 
     def apply(self, state, action):
+        self.checked = False
+        new_state = None
         if action == UP:
             new_state = (state[0] - 1, state[1])
         elif action == RELEASE:
             new_state = (state[0] + 1, state[1])
-
+        reward = 0
         if new_state in self.states:
-            # calculer la récompense
             if self.states[new_state] in ['#']:
                 new_state = state
-                reward = REWARD_STUCK
-            elif self.states[new_state] in ['_', '@', '&']:  # Sortie du labyrinthe : grosse récompense
+                reward += REWARD_STUCK
+            if self.states[new_state] in ['_', '@', '&']:
+                print('loose')
                 self.loose = True
-                reward = REWARD_LOOSE
-            elif self.states[new_state] in ['+']:  # Sortie du labyrinthe : grosse récompense
-                reward = REWARD_CHECKPOINT
+                reward += REWARD_LOOSE
+            elif self.in_checkpoint(new_state):
+                print('win')
+                self.checked = True
+                reward += REWARD_CHECKPOINT
+                self.goals.pop(0)
             else:
-                reward = REWARD_DEFAULT
+                reward += REWARD_DEFAULT
         else:
             # Etat impossible: grosse pénalité
             new_state = state
-            reward = REWARD_IMPOSSIBLE
+            reward += REWARD_IMPOSSIBLE
 
-        return new_state, reward
+        distance = self.distance(new_state)
+        old_distance = self.distance(state)
+        if distance == -1:
+            penalty = 0
+        elif old_distance - distance < 0:
+            penalty = distance * REWARD_PENALTY
+        else:
+            penalty = REWARD_CHECKPOINT
+
+        return new_state, reward + penalty
 
 
 class Agent:
@@ -117,7 +173,7 @@ class Agent:
         self.score = 0
 
     def best_action(self):
-        return self.policy.best_action(self.state)
+        return self.policy.best_action(self.state, self.environment.position(self.state))
 
     def do(self, action):
         self.previous_state = self.state
@@ -127,7 +183,8 @@ class Agent:
         self.last_action = action
 
     def update_policy(self):
-        self.policy.update(self.previous_state, self.state, self.last_action, self.reward)
+        self.policy.update(self.previous_state, self.state, self.environment.position(self.previous_state),
+                           self.environment.position(self.state), self.last_action, self.reward)
 
 
 class Policy:  # Q-table
@@ -139,8 +196,10 @@ class Policy:  # Q-table
         self.discount_factor = discount_factor
         for s in states:
             self.table[s] = {}
-            for a in actions:
-                self.table[s][a] = 0
+            for p in POSITIONS:
+                self.table[s][p] = {}
+                for a in actions:
+                    self.table[s][p][a] = 0
 
     def __repr__(self):
         res = ''
@@ -148,19 +207,20 @@ class Policy:  # Q-table
             res += f'{state}\t{self.table[state]}\n'
         return res
 
-    def best_action(self, state):
+    def best_action(self, state, position):
         action = None
-        for a in self.table[state]:
-            if action is None or self.table[state][a] > self.table[state][action]:
+        for a in self.table[state][position]:
+            if action is None or self.table[state][position][a] > self.table[state][position][action]:
                 action = a
         return action
 
-    def update(self, previous_state, state, last_action, reward):
+    def update(self, previous_state, state, previous_position, position, last_action, reward):
         # Q(st, at) = Q(st, at) + learning_rate * (reward + discount_factor * max(Q(state)) - Q(st, at))
-        maxQ = max(self.table[state].values())
-        self.table[previous_state][last_action] += self.learning_rate * \
-                                                   (reward + self.discount_factor * maxQ - self.table[previous_state][
-                                                       last_action])
+        maxQ = max(self.table[state][position].values())
+        self.table[previous_state][previous_position][last_action] += self.learning_rate * \
+                                                             (reward + self.discount_factor * maxQ -
+                                                              self.table[previous_state][previous_position][
+                                                                  last_action])
 
 
 class MazeWindow(arcade.Window):
@@ -211,8 +271,9 @@ class MazeWindow(arcade.Window):
         self.agent.update_policy()
         self.update_player_xy()
         if self.agent.environment.loose:
-            print('loose')
             self.agent.reset()
+        if self.agent.environment.checked:
+            self.agent.score = 0
 
     def on_draw(self):
         arcade.start_render()
