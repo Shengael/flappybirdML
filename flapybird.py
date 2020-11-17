@@ -255,8 +255,7 @@ class MazeWindow(arcade.Window):
                 sprite.center_y = sprite.height * (agent.environment.height - state[0] - 0.5)
                 self.walls.append(sprite)
 
-        self.player = arcade.Sprite(":resources:images/animated_characters/robot/robot_idle.png",
-                                    0.5)
+        self.player = arcade.Sprite("./media/yellowbird.png", 2)
         self.update_player_xy()
 
     def update_player_xy(self):
