@@ -24,7 +24,6 @@ REWARD_IMPOSSIBLE = -60
 REWARD_STUCK = -1000
 REWARD_PENALTY = -200
 REWARD_DEFAULT = -1
-# TODO: doit-il y avoir une fin ?
 REWARD_CHECKPOINT = 1500
 REWARD_GOAL = 60
 DEFAULT_LEARNING_RATE = 1
@@ -41,6 +40,8 @@ class Environment:
         self.goals = []
         self.width = 0
         self.height = 0
+        self.win_streak = 0
+        self.best_win_streak = 0
         self.frequency = PIPE_FREQUENCY
         self.loose = False
         self.checked = False
@@ -54,6 +55,7 @@ class Environment:
         self.goals = []
         self.loose = False
         self.checked = False
+        self.win_streak = 0
         self.frequency = PIPE_FREQUENCY
         lines = self.initial.strip().split('\n')
         self.height = len(lines)
@@ -138,13 +140,13 @@ class Environment:
                 reward += REWARD_LOOSE
             elif self.in_checkpoint(new_state):
                 print('win')
+                self.win_streak += 1
                 self.checked = True
                 reward += REWARD_CHECKPOINT
                 self.goals.pop(0)
             else:
                 reward += REWARD_DEFAULT
         else:
-            # Etat impossible: grosse pénalité
             new_state = state
             reward += REWARD_IMPOSSIBLE
 
@@ -218,9 +220,9 @@ class Policy:  # Q-table
         # Q(st, at) = Q(st, at) + learning_rate * (reward + discount_factor * max(Q(state)) - Q(st, at))
         maxQ = max(self.table[state][position].values())
         self.table[previous_state][previous_position][last_action] += self.learning_rate * \
-                                                             (reward + self.discount_factor * maxQ -
-                                                              self.table[previous_state][previous_position][
-                                                                  last_action])
+                                                                      (reward + self.discount_factor * maxQ -
+                                                                       self.table[previous_state][previous_position][
+                                                                           last_action])
 
 
 class MazeWindow(arcade.Window):
@@ -255,7 +257,8 @@ class MazeWindow(arcade.Window):
                 sprite.center_y = sprite.height * (agent.environment.height - state[0] - 0.5)
                 self.walls.append(sprite)
 
-        self.player = arcade.Sprite("./media/yellowbird.png", 2)
+        self.player = arcade.Sprite(":resources:images/animated_characters/male_adventurer/maleAdventurer_walk1.png",
+                                    0.5)
         self.update_player_xy()
 
     def update_player_xy(self):
@@ -270,6 +273,8 @@ class MazeWindow(arcade.Window):
         self.agent.update_policy()
         self.update_player_xy()
         if self.agent.environment.loose:
+            if  self.agent.environment.best_win_streak < self.agent.environment.win_streak:
+                self.agent.environment.best_win_streak = self.agent.environment.win_streak
             self.agent.reset()
         if self.agent.environment.checked:
             self.agent.score = 0
@@ -279,6 +284,11 @@ class MazeWindow(arcade.Window):
 
         self.walls.draw()
         self.player.draw()
+
+        arcade.draw_text(f"Win streak: {self.agent.environment.win_streak}", 10,
+                         (self.agent.environment.height - 0.5) * self.player.height - 10, arcade.csscolor.GREEN, 20)
+        arcade.draw_text(f"best Win streak: {self.agent.environment.best_win_streak}", 300,
+                         (self.agent.environment.height - 0.5) * self.player.height - 10, arcade.csscolor.BLUE, 20)
 
         arcade.draw_text(f"Score: {self.agent.score}", 10, 10, arcade.csscolor.BLACK, 20)
 
