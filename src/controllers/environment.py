@@ -1,7 +1,7 @@
 import copy
 from typing import Tuple
 
-from resources.env import UP, RELEASE
+from resources.env import UP
 from src.controllers.board_controller import BoardController
 from src.controllers.texture_manager import TextureManager
 from src.entities.bird import Bird
@@ -62,12 +62,12 @@ class Environment:
 
         penalty = 0
         if not reset_bird:
-            distance = self.board_controller.distance_next_pipe(bird)
             old_distance = self.board_controller.distance_next_pipe(old_bird)
+            distance = self.board_controller.distance_next_pipe(bird)
             if distance == -1:
                 penalty = 0
             elif old_distance - distance < 0:
                 penalty = distance * int(Reward.REWARD_PENALTY)
             else:
-                penalty = int(Reward.REWARD_CHECKPOINT) * 0.05
+                penalty = int(Reward.REWARD_CHECKPOINT)
         return reset_bird, int(reward) + penalty

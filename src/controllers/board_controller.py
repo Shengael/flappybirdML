@@ -29,13 +29,15 @@ class BoardController:
         return len(self.goals) != 0 and self.pipe_controller.in_checkpoint(self.goals[0], bird)
 
     def distance_next_pipe(self, bird: Bird) -> float:
-        if len(self.goals) == 0:
-            return -1
-        return PipeController.distance_checkpoint(self.goals[0], bird)
+        pipe = self.goals[0] if len(self.goals) != 0 else None
+        return PipeController.distance_checkpoint(pipe, bird, self.real_height())
 
     def get_position(self, bird: Bird) -> str:
         pipe = self.goals[0] if len(self.goals) != 0 else None
-        return PipeController.position_player_pipe(pipe, bird)
+        return PipeController.position_player_pipe(pipe, bird, self.real_height())
+
+    def real_height(self):
+        return self.board.height - self.texture_manager.texture["top"]["height"]
 
     def update(self) -> None:
         self.frequency -= 1

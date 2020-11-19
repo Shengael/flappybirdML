@@ -1,6 +1,5 @@
 import arcade
 
-from resources.env import SPRITE_SIZE, GAP_SIZE, GRAVITY
 from src.controllers.texture_manager import TextureManager
 from src.entities.bird import Bird
 from src.learning_engine.agent import Agent
@@ -26,6 +25,7 @@ class FlappyWindow(arcade.Window):
         self.texture_manager.create_bottom(environment.width, self.no_collision)
 
     def on_update(self, delta_time):
+        self.bird.update()
         action = self.agent.best_action(self.bird)
         self.setup()
         self.agent.environment.board_controller.update()

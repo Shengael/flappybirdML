@@ -1,4 +1,4 @@
-from resources.env import MIN_PIPE_SIZE, GAP_SIZE, NO_PIPE, ABOVE, UNDER, IN, PIPE_SPEED
+from resources.env import MIN_PIPE_SIZE, GAP_SIZE, NO_PIPE, ABOVE, UNDER, IN, CHEAT
 from src.controllers.texture_manager import TextureManager
 from src.entities.pipe import Pipe
 from src.entities.bird import Bird
@@ -8,37 +8,47 @@ from src.services.random_service import RandomService
 class PipeController:
 
     def __init__(self):
-        self.texture = TextureManager().texture["pipe"]
+        self.texture = TextureManager().texture
 
     @staticmethod
-    def position_player_pipe(pipe: Pipe, bird: Bird) -> str:
+    def position_player_pipe(pipe: Pipe, bird: Bird, height: int) -> str:
         if pipe is None:
+            if CHEAT and bird.sprite.center_y > height / 2:
+                return ABOVE
+            if CHEAT and bird.sprite.center_y < height / 2:
+                return UNDER
             return NO_PIPE
-        if bird.get_top() >= pipe.top:
+        if bird.sprite.center_y > pipe.center_y:
             return ABOVE
-        if bird.get_bottom() <= pipe.bottom:
+        if bird.sprite.center_y < pipe.center_y:
             return UNDER
         return IN
 
     def in_checkpoint(self, pipe: Pipe, bird: Bird) -> bool:
-        if pipe.position_x + self.texture["width"] <= bird.get_min_x() \
+        if pipe.position_x + self.texture["pipe"]["width"] <= bird.get_min_x() \
                 and pipe.bottom < bird.get_bottom() and bird.get_top() < pipe.top:
             return True
         return False
 
     def in_pipe(self, pipe: Pipe, bird: Bird) -> bool:
         if pipe.position_x <= bird.get_max_x() \
-                and pipe.position_x + self.texture["width"] >= bird.get_min_x() \
+                and pipe.position_x + self.texture["pipe"]["width"] >= bird.get_min_x() \
                 and (pipe.bottom >= bird.get_bottom() or bird.get_top() >= pipe.top):
             return True
         return False
 
     @staticmethod
-    def distance_checkpoint(pipe: Pipe, bird: Bird) -> float:
-        if bird.get_top() >= pipe.top:
-            return bird.get_top() - pipe.top + 1
-        if bird.get_bottom() <= pipe.bottom:
-            return pipe.bottom - bird.get_bottom() + 1
+    def distance_checkpoint(pipe: Pipe, bird: Bird, height: int) -> float:
+        if pipe is None:
+            if CHEAT and bird.sprite.center_y > height / 2:
+                return bird.sprite.center_y - (height / 2) + 1
+            if CHEAT and bird.sprite.center_y < height / 2:
+                return (height / 2) - bird.sprite.center_y + 1
+            return -1
+        if bird.sprite.center_y > pipe.center_y:
+            return bird.sprite.center_y - pipe.center_y + 1
+        if bird.sprite.center_y < pipe.center_y:
+            return pipe.center_y - bird.sprite.center_y + 1
         return 0
 
     @staticmethod
