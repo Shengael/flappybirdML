@@ -25,20 +25,22 @@ class Environment:
         self.checked = False
 
     def update_bird(self, bird: Bird, action: str) -> Tuple[Bird, int]:
-        print(action)
         self.checked = False
-        new_bird = copy.deepcopy(bird)
+        old_bird = copy.deepcopy(bird)
         if action == UP:
-            new_bird.flap()
+            bird.flap()
         elif action == RELEASE:
-            new_bird.fall()
+            bird.fall()
 
-        reset_bird, reward = self.get_reward(bird, new_bird)
+        reset_bird, reward = self.get_reward(old_bird, bird)
 
         if reset_bird:
-            new_bird = bird
+            if action == UP:
+                bird.fall()
+            elif action == RELEASE:
+                bird.flap()
 
-        return new_bird, reward
+        return bird, reward
 
     def get_reward(self, old_bird: Bird, bird: Bird) -> Tuple[bool, int]:
         reset_bird = False

@@ -10,11 +10,9 @@ class Bird:
         self.sprite.center_x = self.sprite.height * ratio
 
     def flap(self) -> None:
-        print("flap")
         self.sprite.center_y += 10
 
     def fall(self) -> None:
-        print("fall")
         self.sprite.center_y -= 10
 
     def get_state(self) -> int:

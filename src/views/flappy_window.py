@@ -4,7 +4,6 @@ from resources.env import SPRITE_SIZE
 from src.entities.bird import Bird
 from src.learning_engine.agent import Agent
 
-
 class FlappyWindow(arcade.Window):
     def __init__(self, agent: Agent, bird: Bird):
         super().__init__(agent.environment.width * SPRITE_SIZE,
@@ -40,13 +39,9 @@ class FlappyWindow(arcade.Window):
             self.walls.append(sprite)
 
     def on_update(self, delta_time):
-        print("get best")
         action = self.agent.best_action(self.bird)
-        print("setup")
         self.setup()
-        print("create pipe")
         self.agent.environment.board_controller.update()
-        print("do action")
         self.bird = self.agent.do(self.bird, action)
         self.agent.update_policy(self.bird)
         if self.agent.environment.loose:
@@ -60,10 +55,7 @@ class FlappyWindow(arcade.Window):
         arcade.start_render()
 
         self.walls.draw()
-        print("update player ")
-        print(self.bird.sprite)
         self.bird.sprite.draw()
-        print("updated player ")
 
         arcade.draw_text(f"Win streak: {self.agent.environment.win_streak}", 10,
                          (self.agent.environment.height - 0.5) * self.bird.sprite.height - 10, arcade.csscolor.GREEN,
