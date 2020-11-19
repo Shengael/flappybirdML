@@ -17,7 +17,7 @@ class Agent:
 
     def reset(self, bird: Bird) -> None:
         self.environment.reset()
-        self.previous_bird = bird
+        self.previous_bird = bird.reset()
         self.score = 0
         self.reward = 0
 

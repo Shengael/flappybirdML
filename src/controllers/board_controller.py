@@ -17,7 +17,7 @@ class BoardController:
         self.pipe_controller = PipeController()
 
     def is_bottom(self, bird: Bird) -> bool:
-        return bird.get_bottom() <= 0
+        return bird.get_bottom() < self.texture_manager.texture["bottom"]["height"]
 
     def is_top(self, bird: Bird) -> bool:
         return bird.get_top() >= self.board.height - self.texture_manager.texture["top"]["height"]

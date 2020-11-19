@@ -21,7 +21,6 @@ class Environment:
 
     def reset(self) -> None:
         self.win_streak = 0
-        self.best_win_streak = 0
         self.loose = False
         self.checked = False
 
@@ -43,16 +42,14 @@ class Environment:
         reset_bird = False
         if bird.get_top() <= self.height and bird.get_bottom() > 0:
             if self.board_controller.is_top(bird):
-                print("Is stuck!")
                 reward = Reward.REWARD_STUCK
                 reset_bird = True
             elif self.board_controller.is_bottom(bird) or self.board_controller.is_pipe(bird):
-                print('loose')
                 self.loose = True
                 reward = Reward.REWARD_LOOSE
-                self.board_controller.goals.pop(0)
+                if len(self.board_controller.goals) != 0:
+                    self.board_controller.goals.pop(0)
             elif self.board_controller.is_checkpoint(bird):
-                print('win')
                 self.win_streak += 1
                 self.checked = True
                 reward = Reward.REWARD_CHECKPOINT
@@ -60,7 +57,6 @@ class Environment:
             else:
                 reward = Reward.REWARD_DEFAULT
         else:
-            print("Is impossible!")
             reset_bird = True
             reward = Reward.REWARD_IMPOSSIBLE
 

@@ -14,17 +14,16 @@ class FlappyWindow(arcade.Window):
         self.agent = agent
         self.bird = bird
         self.walls = None
+        self.no_collision = None
         self.texture_manager = TextureManager()
-        self.physics_engine = None
 
     def setup(self):
         self.walls = arcade.SpriteList()
+        self.no_collision = arcade.SpriteList()
         environment = self.agent.environment
         self.texture_manager.create_pipe(environment.height, self.walls, environment.board_controller.goals)
         self.texture_manager.create_top(environment.width, environment.height, self.walls)
-        self.texture_manager.create_bottom(environment.width, self.walls)
-
-        self.physics_engine = arcade.PhysicsEnginePlatformer(self.bird.sprite, self.walls, GRAVITY)
+        self.texture_manager.create_bottom(environment.width, self.no_collision)
 
     def on_update(self, delta_time):
         action = self.agent.best_action(self.bird)
@@ -38,12 +37,12 @@ class FlappyWindow(arcade.Window):
             self.agent.reset(self.bird)
         if self.agent.environment.checked:
             self.agent.score = 0
-        self.physics_engine.update()
 
     def on_draw(self):
         arcade.start_render()
 
         self.walls.draw()
+        self.no_collision.draw()
         self.bird.sprite.draw()
 
         arcade.draw_text(f"Win streak: {self.agent.environment.win_streak}", 10,
