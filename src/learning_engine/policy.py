@@ -35,7 +35,7 @@ class Policy:  # Q-table
                     action = a
         else:
             for a in self.table[state][position]:
-                if action is None or self.table[position][a] > self.table[position][action]:
+                if action is None or self.table[state][position][a] > self.table[state][position][action]:
                     action = a
         return action
 
