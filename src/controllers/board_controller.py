@@ -1,6 +1,6 @@
 from typing import List
 
-from resources.env import PIPE_FREQUENCY
+from resources.env import PIPE_FREQUENCY, PIPE_SPEED
 from src.controllers.texture_manager import TextureManager
 from src.entities.bird import Bird
 from src.entities.board import Board
@@ -14,6 +14,7 @@ class BoardController:
         self.goals: List[Pipe] = []
         self.frequency = 1
         self.texture_manager = TextureManager()
+        self.pipe_controller = PipeController()
 
     def is_bottom(self, bird: Bird) -> bool:
         return bird.get_bottom() <= 0
@@ -22,10 +23,10 @@ class BoardController:
         return bird.get_top() >= self.board.height - self.texture_manager.texture["top"]["height"]
 
     def is_pipe(self, bird: Bird) -> bool:
-        return len(self.goals) != 0 and PipeController.in_pipe(self.goals[0], bird)
+        return len(self.goals) != 0 and self.pipe_controller.in_pipe(self.goals[0], bird)
 
     def is_checkpoint(self, bird: Bird) -> bool:
-        return len(self.goals) != 0 and PipeController.in_checkpoint(self.goals[0], bird)
+        return len(self.goals) != 0 and self.pipe_controller.in_checkpoint(self.goals[0], bird)
 
     def distance_next_pipe(self, bird: Bird) -> float:
         if len(self.goals) == 0:
@@ -39,7 +40,7 @@ class BoardController:
     def update(self) -> None:
         self.frequency -= 1
         for goal in self.goals:
-            goal.position_x -= 1
+            goal.position_x -= PIPE_SPEED
 
         if self.frequency == 0:
             pipe = PipeController.create_pipe(self.board.width, self.board.height)

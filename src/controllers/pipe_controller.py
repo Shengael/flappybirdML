@@ -1,10 +1,15 @@
-from resources.env import MIN_PIPE_SIZE, GAP_SIZE, NO_PIPE, ABOVE, UNDER, IN
+from resources.env import MIN_PIPE_SIZE, GAP_SIZE, NO_PIPE, ABOVE, UNDER, IN, PIPE_SPEED
+from src.controllers.texture_manager import TextureManager
 from src.entities.pipe import Pipe
 from src.entities.bird import Bird
 from src.services.random_service import RandomService
 
 
 class PipeController:
+
+    def __init__(self):
+        self.texture = TextureManager().texture["pipe"]
+
     @staticmethod
     def position_player_pipe(pipe: Pipe, bird: Bird) -> str:
         if pipe is None:
@@ -15,15 +20,17 @@ class PipeController:
             return UNDER
         return IN
 
-    @staticmethod
-    def in_checkpoint(pipe: Pipe, bird: Bird) -> bool:
-        if pipe.position_x == bird.get_position_x() and pipe.bottom < bird.get_bottom() and bird.get_top() < pipe.top:
+    def in_checkpoint(self, pipe: Pipe, bird: Bird) -> bool:
+        if pipe.position_x + self.texture["width"] <= bird.get_min_x() \
+                and pipe.bottom < bird.get_bottom() and bird.get_top() < pipe.top:
             return True
         return False
 
-    @staticmethod
-    def in_pipe(pipe: Pipe, bird: Bird) -> bool:
-        if pipe.position_x == bird.get_position_x() and pipe.bottom >= bird.get_bottom() and bird.get_top() >= pipe.top:
+    def in_pipe(self, pipe: Pipe, bird: Bird) -> bool:
+        if pipe.position_x <= bird.get_max_x() \
+                and pipe.position_x + self.texture["width"] >= bird.get_min_x() \
+                and pipe.bottom >= bird.get_bottom() \
+                and bird.get_top() >= pipe.top:
             return True
         return False
 

@@ -26,3 +26,9 @@ class Bird:
 
     def get_position_x(self) -> float:
         return self.sprite.center_x
+
+    def get_min_x(self) -> float:
+        return self.sprite.center_x - self.sprite.width * 0.5
+
+    def get_max_x(self) -> float:
+        return self.sprite.center_x + self.sprite.width * 0.5
