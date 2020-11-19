@@ -8,5 +8,5 @@ FSprite = NewType('Sprite', Sprite)
 
 class ArcadeService:
     @staticmethod
-    def load_sprite(path):
-        return arcade.Sprite(path, 0.5)
+    def load_sprite(path: str, ratio: float):
+        return arcade.Sprite(path, ratio)

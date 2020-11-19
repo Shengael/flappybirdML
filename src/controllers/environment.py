@@ -1,14 +1,16 @@
 import copy
 from typing import Tuple
 
+from resources.env import UP, RELEASE
 from src.controllers.board_controller import BoardController
-from src.enum.action import Action
 from src.entities.bird import Bird
 from src.enum.reward import Reward
 
 
 class Environment:
     def __init__(self, width: int, height: int) -> None:
+        self.width = width
+        self.height = height
         self.board_controller = BoardController(width, height)
         self.win_streak = 0
         self.best_win_streak = 0
@@ -22,12 +24,13 @@ class Environment:
         self.loose = False
         self.checked = False
 
-    def update_bird(self, bird: Bird, action: Action) -> Tuple[Bird, int]:
+    def update_bird(self, bird: Bird, action: str) -> Tuple[Bird, int]:
+        print(action)
         self.checked = False
         new_bird = copy.deepcopy(bird)
-        if action == Action.UP:
+        if action == UP:
             new_bird.flap()
-        elif action == Action.RELEASE:
+        elif action == RELEASE:
             new_bird.fall()
 
         reset_bird, reward = self.get_reward(bird, new_bird)
@@ -39,7 +42,7 @@ class Environment:
 
     def get_reward(self, old_bird: Bird, bird: Bird) -> Tuple[bool, int]:
         reset_bird = False
-        if bird.get_state() in self.board_controller.board.states:
+        if bird.get_top() < self.height - 1 and bird.get_bottom() > 0:
             if self.board_controller.is_top(bird):
                 reward = Reward.REWARD_STUCK
                 reset_bird = True

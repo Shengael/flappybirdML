@@ -1,7 +1,4 @@
-from typing import NewType, Tuple, Dict, List
-
-Coordinate = NewType('Coordinate', Tuple[int, int])
-States = NewType('State', Dict[Coordinate, str])
+from typing import NewType, Dict, List
 
 Goal = NewType('Goal', Dict[str, int])
 Goals = NewType('Goals', List[Goal])
