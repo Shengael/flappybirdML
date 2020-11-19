@@ -30,9 +30,9 @@ class PipeController:
     @staticmethod
     def distance_checkpoint(pipe: Pipe, bird: Bird) -> float:
         if bird.get_top() >= pipe.top:
-            return pipe.top - bird.get_top() + 1
+            return bird.get_top() - pipe.top + 1
         if bird.get_bottom() <= pipe.bottom:
-            return bird.get_bottom() - pipe.bottom + 1
+            return pipe.bottom - bird.get_bottom() + 1
         return 0
 
     @staticmethod

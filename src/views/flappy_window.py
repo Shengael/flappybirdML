@@ -14,14 +14,14 @@ class FlappyWindow(arcade.Window):
         self.agent = agent
         self.bird = bird
         self.walls = None
+        self.texture_manager = TextureManager()
 
     def setup(self):
         self.walls = arcade.SpriteList()
-        texture_manager = TextureManager()
         environment = self.agent.environment
-        texture_manager.create_pipe(environment.height, self.walls, environment.board_controller.goals)
-        texture_manager.create_top(environment.width, environment.height, self.walls)
-        texture_manager.create_bottom(environment.width, self.walls)
+        self.texture_manager.create_pipe(environment.height, self.walls, environment.board_controller.goals)
+        self.texture_manager.create_top(environment.width, environment.height, self.walls)
+        self.texture_manager.create_bottom(environment.width, self.walls)
 
     def on_update(self, delta_time):
         action = self.agent.best_action(self.bird)

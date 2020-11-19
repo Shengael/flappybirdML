@@ -1,6 +1,7 @@
 from typing import List
 
 from resources.env import PIPE_FREQUENCY
+from src.controllers.texture_manager import TextureManager
 from src.entities.bird import Bird
 from src.entities.board import Board
 from src.controllers.pipe_controller import PipeController
@@ -12,12 +13,13 @@ class BoardController:
         self.board = Board(width, height)
         self.goals: List[Pipe] = []
         self.frequency = 1
+        self.texture_manager = TextureManager()
 
     def is_bottom(self, bird: Bird) -> bool:
         return bird.get_bottom() <= 0
 
     def is_top(self, bird: Bird) -> bool:
-        return bird.get_top() >= self.board.height - 1
+        return bird.get_top() >= self.board.height - self.texture_manager.texture["top"]["height"]
 
     def is_pipe(self, bird: Bird) -> bool:
         return len(self.goals) != 0 and PipeController.in_pipe(self.goals[0], bird)

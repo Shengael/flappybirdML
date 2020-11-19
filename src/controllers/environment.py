@@ -3,6 +3,7 @@ from typing import Tuple
 
 from resources.env import UP, RELEASE
 from src.controllers.board_controller import BoardController
+from src.controllers.texture_manager import TextureManager
 from src.entities.bird import Bird
 from src.enum.reward import Reward
 
@@ -16,6 +17,7 @@ class Environment:
         self.best_win_streak = 0
         self.loose = False
         self.checked = False
+        self.texture_manager = TextureManager()
 
     def reset(self) -> None:
         self.board_controller.board.reset()
@@ -33,7 +35,7 @@ class Environment:
             bird.fall()
 
         reset_bird, reward = self.get_reward(old_bird, bird)
-        print(reset_bird)
+
         if reset_bird:
             if action == UP:
                 bird.fall()
@@ -44,8 +46,9 @@ class Environment:
 
     def get_reward(self, old_bird: Bird, bird: Bird) -> Tuple[bool, int]:
         reset_bird = False
-        if bird.get_top() < self.height - 1 and bird.get_bottom() > 0:
+        if bird.get_top() <= self.height and bird.get_bottom() > 0:
             if self.board_controller.is_top(bird):
+                print("Is stuck!")
                 reward = Reward.REWARD_STUCK
                 reset_bird = True
             elif self.board_controller.is_bottom(bird) or self.board_controller.is_pipe(bird):
@@ -61,16 +64,18 @@ class Environment:
             else:
                 reward = Reward.REWARD_DEFAULT
         else:
+            print("Is impossible!")
             reset_bird = True
             reward = Reward.REWARD_IMPOSSIBLE
 
-        distance = self.board_controller.distance_next_pipe(bird)
-        old_distance = self.board_controller.distance_next_pipe(old_bird)
-        if distance == -1:
-            penalty = 0
-        elif old_distance - distance < 0:
-            penalty = distance * int(Reward.REWARD_PENALTY)
-        else:
-            penalty = int(Reward.REWARD_CHECKPOINT)
-
+        penalty = 0
+        if not reset_bird:
+            distance = self.board_controller.distance_next_pipe(bird)
+            old_distance = self.board_controller.distance_next_pipe(old_bird)
+            if distance == -1:
+                penalty = 0
+            elif old_distance - distance < 0:
+                penalty = distance * int(Reward.REWARD_PENALTY)
+            else:
+                penalty = int(Reward.REWARD_CHECKPOINT) * 0.05
         return reset_bird, int(reward) + penalty
