@@ -30,16 +30,12 @@ class Environment:
         old_bird = copy.deepcopy(bird)
         if action == UP:
             bird.flap()
-        elif action == RELEASE:
-            bird.fall()
 
         reset_bird, reward = self.get_reward(old_bird, bird)
 
         if reset_bird:
             if action == UP:
                 bird.fall()
-            elif action == RELEASE:
-                bird.flap()
 
         return bird, reward
 

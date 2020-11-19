@@ -1,6 +1,6 @@
 import arcade
 
-from resources.env import SPRITE_SIZE, GAP_SIZE
+from resources.env import SPRITE_SIZE, GAP_SIZE, GRAVITY
 from src.controllers.texture_manager import TextureManager
 from src.entities.bird import Bird
 from src.learning_engine.agent import Agent
@@ -15,6 +15,7 @@ class FlappyWindow(arcade.Window):
         self.bird = bird
         self.walls = None
         self.texture_manager = TextureManager()
+        self.physics_engine = None
 
     def setup(self):
         self.walls = arcade.SpriteList()
@@ -22,6 +23,8 @@ class FlappyWindow(arcade.Window):
         self.texture_manager.create_pipe(environment.height, self.walls, environment.board_controller.goals)
         self.texture_manager.create_top(environment.width, environment.height, self.walls)
         self.texture_manager.create_bottom(environment.width, self.walls)
+
+        self.physics_engine = arcade.PhysicsEnginePlatformer(self.bird.sprite, self.walls, GRAVITY)
 
     def on_update(self, delta_time):
         action = self.agent.best_action(self.bird)
@@ -35,6 +38,7 @@ class FlappyWindow(arcade.Window):
             self.agent.reset(self.bird)
         if self.agent.environment.checked:
             self.agent.score = 0
+        self.physics_engine.update()
 
     def on_draw(self):
         arcade.start_render()
