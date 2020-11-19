@@ -1,8 +1,10 @@
 import arcade
 
 from resources.env import SPRITE_SIZE, GAP_SIZE
+from src.controllers.texture_manager import TextureManager
 from src.entities.bird import Bird
 from src.learning_engine.agent import Agent
+
 
 class FlappyWindow(arcade.Window):
     def __init__(self, agent: Agent, bird: Bird):
@@ -15,47 +17,11 @@ class FlappyWindow(arcade.Window):
 
     def setup(self):
         self.walls = arcade.SpriteList()
-        self.create_pipe()
-        self.create_top()
-        self.create_bottom()
-
-    def create_top(self):
-        sprite = arcade.Sprite(":resources:images/tiles/grassCenter.png", 0.5)
-        quantity = int(self.agent.environment.width / sprite.width) + 1
-
-        for s in range(quantity):
-            sprite = arcade.Sprite(":resources:images/tiles/grassCenter.png", 0.5)
-            sprite.center_x = sprite.width * 0.5 + sprite.width * s
-            sprite.center_y = self.agent.environment.height - (sprite.height * 0.5)
-            self.walls.append(sprite)
-
-    def create_bottom(self):
-        sprite = arcade.Sprite(":resources:images/tiles/waterTop_high.png", 0.5)
-        quantity = int(self.agent.environment.width / sprite.width) + 1
-
-        for s in range(quantity):
-            sprite = arcade.Sprite(":resources:images/tiles/waterTop_high.png", 0.5)
-            sprite.center_x = sprite.width * 0.5 + sprite.width * s
-            sprite.center_y = sprite.height * 0.5
-            self.walls.append(sprite)
-
-    def create_pipe(self):
-        for pipe in self.agent.environment.board_controller.goals:
-            sprite = arcade.Sprite(":resources:images/tiles/water.png", 0.5)
-            quantity_top = int((self.agent.environment.height - pipe.top) / sprite.height) + 1
-            quantity_bottom = int(pipe.bottom / sprite.height)
-
-            for s in range(quantity_top):
-                sprite = arcade.Sprite(":resources:images/tiles/water.png", 0.5)
-                sprite.center_x = pipe.position_x + sprite.width * 0.5
-                sprite.center_y = pipe.top + (sprite.height * 0.5 + sprite.height * s)
-                self.walls.append(sprite)
-
-            for s in range(quantity_bottom):
-                sprite = arcade.Sprite(":resources:images/tiles/water.png", 0.5)
-                sprite.center_x = pipe.position_x + sprite.width * 0.5
-                sprite.center_y = pipe.bottom - (sprite.height * 0.5 + sprite.height * s)
-                self.walls.append(sprite)
+        texture_manager = TextureManager()
+        environment = self.agent.environment
+        texture_manager.create_pipe(environment.height, self.walls, environment.board_controller.goals)
+        texture_manager.create_top(environment.width, environment.height, self.walls)
+        texture_manager.create_bottom(environment.width, self.walls)
 
     def on_update(self, delta_time):
         action = self.agent.best_action(self.bird)

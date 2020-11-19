@@ -33,7 +33,7 @@ class Environment:
             bird.fall()
 
         reset_bird, reward = self.get_reward(old_bird, bird)
-
+        print(reset_bird)
         if reset_bird:
             if action == UP:
                 bird.fall()
