@@ -1,4 +1,4 @@
-from resources.env import MIN_PIPE_SIZE, GAP_SIZE, NO_PIPE, ABOVE, UNDER, IN, CHEAT
+from resources.env import MIN_PIPE_SIZE, GAP_SIZE, NO_PIPE, ABOVE, UNDER, IN, CHEAT_REWARD
 from src.controllers.texture_manager import TextureManager
 from src.entities.pipe import Pipe
 from src.entities.bird import Bird
@@ -13,9 +13,9 @@ class PipeController:
     @staticmethod
     def position_player_pipe(pipe: Pipe, bird: Bird, height: int) -> str:
         if pipe is None:
-            if CHEAT and bird.sprite.center_y > height / 2:
+            if CHEAT_REWARD and bird.sprite.center_y > height / 2:
                 return ABOVE
-            if CHEAT and bird.sprite.center_y < height / 2:
+            if CHEAT_REWARD and bird.sprite.center_y < height / 2:
                 return UNDER
             return NO_PIPE
         if bird.sprite.center_y > pipe.center_y:
@@ -40,9 +40,9 @@ class PipeController:
     @staticmethod
     def distance_checkpoint(pipe: Pipe, bird: Bird, height: int) -> float:
         if pipe is None:
-            if CHEAT and bird.sprite.center_y > height / 2:
+            if CHEAT_REWARD and bird.sprite.center_y > height / 2:
                 return bird.sprite.center_y - (height / 2) + 1
-            if CHEAT and bird.sprite.center_y < height / 2:
+            if CHEAT_REWARD and bird.sprite.center_y < height / 2:
                 return (height / 2) - bird.sprite.center_y + 1
             return -1
         if bird.sprite.center_y > pipe.center_y:

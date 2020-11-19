@@ -19,14 +19,15 @@ class Bird:
         self.dy = 0
         return self
 
-    def set_velocity(self, velocity):
-        self.vel = velocity
-
     def flap(self) -> None:
+        self.sprite.center_y += 1
         self.vel = PLAYER_SPEED
 
-    def fall(self) -> None:
+    def reset_flap(self) -> None:
         self.vel -= PLAYER_SPEED
+
+    def fall(self) -> None:
+        self.sprite.center_y -= 1
 
     def get_state(self) -> int:
         return int(self.sprite.center_y)

@@ -4,7 +4,7 @@ from enum import IntEnum
 class Reward(IntEnum):
     REWARD_LOOSE = -10000
     REWARD_IMPOSSIBLE = -50000
-    REWARD_STUCK = -5000
+    REWARD_STUCK = -1000
     REWARD_PENALTY = -200
     REWARD_DEFAULT = -1
     REWARD_CHECKPOINT = 1000

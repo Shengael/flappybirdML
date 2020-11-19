@@ -1,7 +1,7 @@
 import copy
 from typing import Tuple
 
-from resources.env import UP
+from resources.env import UP, RELEASE
 from src.controllers.board_controller import BoardController
 from src.controllers.texture_manager import TextureManager
 from src.entities.bird import Bird
@@ -29,12 +29,14 @@ class Environment:
         old_bird = copy.deepcopy(bird)
         if action == UP:
             bird.flap()
+        elif action == RELEASE:
+            bird.fall()
 
         reset_bird, reward = self.get_reward(old_bird, bird)
 
         if reset_bird:
             if action == UP:
-                bird.fall()
+                bird.reset_flap()
 
         return bird, reward
 
