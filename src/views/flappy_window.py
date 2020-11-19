@@ -1,6 +1,6 @@
 import arcade
 
-from resources.env import SPRITE_SIZE
+from resources.env import SPRITE_SIZE, GAP_SIZE
 from src.entities.bird import Bird
 from src.learning_engine.agent import Agent
 
@@ -15,6 +15,7 @@ class FlappyWindow(arcade.Window):
 
     def setup(self):
         self.walls = arcade.SpriteList()
+        self.create_pipe()
         self.create_top()
         self.create_bottom()
 
@@ -37,6 +38,24 @@ class FlappyWindow(arcade.Window):
             sprite.center_x = sprite.width * 0.5 + sprite.width * s
             sprite.center_y = sprite.height * 0.5
             self.walls.append(sprite)
+
+    def create_pipe(self):
+        for pipe in self.agent.environment.board_controller.goals:
+            sprite = arcade.Sprite(":resources:images/tiles/water.png", 0.5)
+            quantity_top = int((self.agent.environment.height - pipe.top) / sprite.height) + 1
+            quantity_bottom = int(pipe.bottom / sprite.height)
+
+            for s in range(quantity_top):
+                sprite = arcade.Sprite(":resources:images/tiles/water.png", 0.5)
+                sprite.center_x = pipe.position_x + sprite.width * 0.5
+                sprite.center_y = pipe.top + (sprite.height * 0.5 + sprite.height * s)
+                self.walls.append(sprite)
+
+            for s in range(quantity_bottom):
+                sprite = arcade.Sprite(":resources:images/tiles/water.png", 0.5)
+                sprite.center_x = pipe.position_x + sprite.width * 0.5
+                sprite.center_y = pipe.bottom - (sprite.height * 0.5 + sprite.height * s)
+                self.walls.append(sprite)
 
     def on_update(self, delta_time):
         action = self.agent.best_action(self.bird)

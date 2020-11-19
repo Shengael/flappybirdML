@@ -37,7 +37,7 @@ class PipeController:
 
     @staticmethod
     def create_pipe(position_x: int, max_height: int) -> Pipe:
-        top_pipe = RandomService.randint(MIN_PIPE_SIZE + 1, max_height - 1 - MIN_PIPE_SIZE - GAP_SIZE)
-        bottom_pipe = top_pipe + GAP_SIZE
+        top_pipe = RandomService.randint(MIN_PIPE_SIZE + GAP_SIZE, max_height - MIN_PIPE_SIZE - 1)
+        bottom_pipe = top_pipe - GAP_SIZE
 
         return Pipe(bottom_pipe, top_pipe, position_x - 1)

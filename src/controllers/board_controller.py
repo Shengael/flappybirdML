@@ -11,7 +11,7 @@ class BoardController:
     def __init__(self, width: int, height: int) -> None:
         self.board = Board(width, height)
         self.goals: List[Pipe] = []
-        self.frequency = PIPE_FREQUENCY
+        self.frequency = 1
 
     def is_bottom(self, bird: Bird) -> bool:
         return bird.get_bottom() <= 0
@@ -36,10 +36,10 @@ class BoardController:
 
     def update(self) -> None:
         self.frequency -= 1
-
         for goal in self.goals:
             goal.position_x -= 1
 
         if self.frequency == 0:
             pipe = PipeController.create_pipe(self.board.width, self.board.height)
             self.goals.append(pipe)
+            self.frequency = PIPE_FREQUENCY
