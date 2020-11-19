@@ -8,8 +8,8 @@ from src.learning_engine.agent import Agent
 
 class FlappyWindow(arcade.Window):
     def __init__(self, agent: Agent, bird: Bird):
-        super().__init__(agent.environment.width * SPRITE_SIZE,
-                         agent.environment.height * SPRITE_SIZE,
+        super().__init__(agent.environment.width,
+                         agent.environment.height,
                          "Flap Flap Flap")
         self.agent = agent
         self.bird = bird
@@ -43,9 +43,8 @@ class FlappyWindow(arcade.Window):
         self.bird.sprite.draw()
 
         arcade.draw_text(f"Win streak: {self.agent.environment.win_streak}", 10,
-                         (self.agent.environment.height - 0.5) * self.bird.sprite.height - 10, arcade.csscolor.GREEN,
-                         20)
+                         self.agent.environment.height - 30, arcade.csscolor.GREEN, 20)
         arcade.draw_text(f"best Win streak: {self.agent.environment.best_win_streak}", 300,
-                         (self.agent.environment.height - 0.5) * self.bird.sprite.height - 10, arcade.csscolor.BLUE, 20)
+                         self.agent.environment.height - 30, arcade.csscolor.BLUE, 20)
 
         arcade.draw_text(f"Score: {self.agent.score}", 10, 10, arcade.csscolor.BLACK, 20)

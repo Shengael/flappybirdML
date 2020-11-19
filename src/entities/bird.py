@@ -1,3 +1,4 @@
+from resources.env import PLAYER_SPEED
 from resources.sprite_path import Sprites
 from src.services.arcade_service import FSprite, ArcadeService
 
@@ -10,10 +11,10 @@ class Bird:
         self.sprite.center_x = self.sprite.width * 0.5
 
     def flap(self) -> None:
-        self.sprite.center_y += 10
+        self.sprite.center_y += PLAYER_SPEED
 
     def fall(self) -> None:
-        self.sprite.center_y -= 10
+        self.sprite.center_y -= PLAYER_SPEED
 
     def get_state(self) -> int:
         return int(self.sprite.center_y)

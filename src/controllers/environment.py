@@ -20,7 +20,6 @@ class Environment:
         self.texture_manager = TextureManager()
 
     def reset(self) -> None:
-        self.board_controller.board.reset()
         self.win_streak = 0
         self.best_win_streak = 0
         self.loose = False
@@ -55,6 +54,7 @@ class Environment:
                 print('loose')
                 self.loose = True
                 reward = Reward.REWARD_LOOSE
+                self.board_controller.goals.pop(0)
             elif self.board_controller.is_checkpoint(bird):
                 print('win')
                 self.win_streak += 1
