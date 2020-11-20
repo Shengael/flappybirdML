@@ -1,5 +1,6 @@
 class Sprites:
-    bird = ":resources:images/animated_characters/male_adventurer/maleAdventurer_walk1.png"
+    bird = "resources/media/yellow_bird.png"
     top = ":resources:images/tiles/grassCenter.png"
-    bottom = ":resources:images/tiles/waterTop_high.png"
-    pipe = ":resources:images/tiles/water.png"
+    bottom = "resources/media/base.png"
+    pipe = "resources/media/pipe_green.png"
+    background = "resources/media/background_day.png"

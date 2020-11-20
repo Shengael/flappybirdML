@@ -4,7 +4,7 @@ from src.services.arcade_service import FSprite, ArcadeService
 
 
 class Bird:
-    def __init__(self, initial=400, ratio=0.5) -> None:
+    def __init__(self, initial=400, ratio=2) -> None:
         self.ratio = ratio
         self.sprite: FSprite = ArcadeService.load_sprite(Sprites.bird, ratio)
         self.initial = initial

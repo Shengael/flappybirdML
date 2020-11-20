@@ -1,5 +1,6 @@
 import arcade
 
+from resources.sprite_path import Sprites
 from src.controllers.texture_manager import TextureManager
 from src.entities.bird import Bird
 from src.learning_engine.agent import Agent
@@ -14,15 +15,18 @@ class FlappyWindow(arcade.Window):
         self.bird = bird
         self.walls = None
         self.no_collision = None
+        self.background = None
         self.texture_manager = TextureManager()
 
     def setup(self):
         self.walls = arcade.SpriteList()
         self.no_collision = arcade.SpriteList()
+        self.background = arcade.load_texture(Sprites.background)
         environment = self.agent.environment
-        self.texture_manager.create_pipe(environment.height, self.walls, environment.board_controller.goals)
-        self.texture_manager.create_top(environment.width, environment.height, self.walls)
-        self.texture_manager.create_bottom(environment.width, self.no_collision)
+
+        TextureManager.create_pipes(self.walls, environment.board_controller.goals)
+        self.texture_manager.create_top(self.width, self.height, self.walls)
+        self.texture_manager.create_bottom(self.width, self.no_collision)
 
     def on_update(self, delta_time):
         self.bird.update()
@@ -40,14 +44,21 @@ class FlappyWindow(arcade.Window):
 
     def on_draw(self):
         arcade.start_render()
-
+        self.draw_background()
         self.walls.draw()
         self.no_collision.draw()
         self.bird.sprite.draw()
 
         arcade.draw_text(f"Win streak: {self.agent.environment.win_streak}", 10,
-                         self.agent.environment.height - 30, arcade.csscolor.GREEN, 20)
+                         self.height - 30, arcade.csscolor.GREEN, 20)
         arcade.draw_text(f"best Win streak: {self.agent.environment.best_win_streak}", 300,
-                         self.agent.environment.height - 30, arcade.csscolor.BLUE, 20)
+                         self.height - 30, arcade.csscolor.BLUE, 20)
 
         arcade.draw_text(f"Score: {self.agent.score}", 10, 10, arcade.csscolor.BLACK, 20)
+
+    def draw_background(self):
+        """
+        Draws the background.
+        """
+        arcade.draw_texture_rectangle(self.width // 2, self.height // 2, self.width, self.height,
+                                      self.background, 0)

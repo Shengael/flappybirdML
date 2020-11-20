@@ -31,8 +31,7 @@ class PipeController:
         return False
 
     def in_pipe(self, pipe: Pipe, bird: Bird) -> bool:
-        if pipe.position_x <= bird.get_max_x() \
-                and pipe.position_x + self.texture["pipe"]["width"] >= bird.get_min_x() \
+        if pipe.position_x <= bird.get_max_x() and pipe.position_x + self.texture["pipe"]["width"] >= bird.get_min_x() \
                 and (pipe.bottom >= bird.get_bottom() or bird.get_top() >= pipe.top):
             return True
         return False
