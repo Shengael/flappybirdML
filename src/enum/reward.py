@@ -2,7 +2,7 @@ from enum import IntEnum
 
 
 class Reward(IntEnum):
-    REWARD_LOOSE = -500
+    REWARD_LOOSE = -5000
     REWARD_IMPOSSIBLE = -500
     REWARD_STUCK = -10
     REWARD_PENALTY = -2
